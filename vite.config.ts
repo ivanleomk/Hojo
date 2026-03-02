@@ -4,18 +4,19 @@ import tsConfigPaths from 'vite-tsconfig-paths'
 import tailwindcss from '@tailwindcss/vite'
 import viteReact from '@vitejs/plugin-react'
 
+import { cloudflare } from "@cloudflare/vite-plugin";
+
 export default defineConfig({
   server: {
     port: 3000,
   },
-  plugins: [
-    tailwindcss(),
-    tsConfigPaths({
-      projects: ['./tsconfig.json'],
-    }),
-    tanstackStart(),
-    viteReact(),
-  ],
+  plugins: [tailwindcss(), tsConfigPaths({
+    projects: ['./tsconfig.json'],
+  }), tanstackStart(), viteReact(), cloudflare({
+    viteEnvironment: {
+      name: "ssr"
+    }
+  })],
   // Workaround for https://github.com/TanStack/router/issues/5738
   optimizeDeps: {
     include: ['@clerk/tanstack-react-start', 'cookie'],
