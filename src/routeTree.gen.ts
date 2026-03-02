@@ -9,12 +9,24 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as PostsRouteImport } from './routes/posts'
+import { Route as AnotherPageRouteImport } from './routes/anotherPage'
+import { Route as AuthedRouteImport } from './routes/_authed'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthedUserRouteImport } from './routes/_authed/user'
 
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
+const PostsRoute = PostsRouteImport.update({
+  id: '/posts',
+  path: '/posts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AnotherPageRoute = AnotherPageRouteImport.update({
+  id: '/anotherPage',
+  path: '/anotherPage',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthedRoute = AuthedRouteImport.update({
+  id: '/_authed',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -22,40 +34,74 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthedUserRoute = AuthedUserRouteImport.update({
+  id: '/user',
+  path: '/user',
+  getParentRoute: () => AuthedRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
+  '/anotherPage': typeof AnotherPageRoute
+  '/posts': typeof PostsRoute
+  '/user': typeof AuthedUserRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
+  '/anotherPage': typeof AnotherPageRoute
+  '/posts': typeof PostsRoute
+  '/user': typeof AuthedUserRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/dashboard': typeof DashboardRoute
+  '/_authed': typeof AuthedRouteWithChildren
+  '/anotherPage': typeof AnotherPageRoute
+  '/posts': typeof PostsRoute
+  '/_authed/user': typeof AuthedUserRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/dashboard'
+  fullPaths: '/' | '/anotherPage' | '/posts' | '/user'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard'
-  id: '__root__' | '/' | '/dashboard'
+  to: '/' | '/anotherPage' | '/posts' | '/user'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authed'
+    | '/anotherPage'
+    | '/posts'
+    | '/_authed/user'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  DashboardRoute: typeof DashboardRoute
+  AuthedRoute: typeof AuthedRouteWithChildren
+  AnotherPageRoute: typeof AnotherPageRoute
+  PostsRoute: typeof PostsRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
+    '/posts': {
+      id: '/posts'
+      path: '/posts'
+      fullPath: '/posts'
+      preLoaderRoute: typeof PostsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/anotherPage': {
+      id: '/anotherPage'
+      path: '/anotherPage'
+      fullPath: '/anotherPage'
+      preLoaderRoute: typeof AnotherPageRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authed': {
+      id: '/_authed'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -65,12 +111,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authed/user': {
+      id: '/_authed/user'
+      path: '/user'
+      fullPath: '/user'
+      preLoaderRoute: typeof AuthedUserRouteImport
+      parentRoute: typeof AuthedRoute
+    }
   }
 }
 
+interface AuthedRouteChildren {
+  AuthedUserRoute: typeof AuthedUserRoute
+}
+
+const AuthedRouteChildren: AuthedRouteChildren = {
+  AuthedUserRoute: AuthedUserRoute,
+}
+
+const AuthedRouteWithChildren =
+  AuthedRoute._addFileChildren(AuthedRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  DashboardRoute: DashboardRoute,
+  AuthedRoute: AuthedRouteWithChildren,
+  AnotherPageRoute: AnotherPageRoute,
+  PostsRoute: PostsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
