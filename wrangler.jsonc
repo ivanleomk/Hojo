@@ -1,6 +1,9 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "hojo",
+  "main": "@tanstack/react-start/server-entry",
+  "compatibility_date": "2026-03-02",
+  "compatibility_flags": ["nodejs_compat"],
   "observability": {
     "enabled": true,
     "logs": {
